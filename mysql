@@ -1,0 +1,24 @@
+CREATE TABLE user (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    name VARCHAR(255),
+    surname VARCHAR(255),
+    profileImage VARCHAR(255),
+    gender ENUM('male', 'female', 'other'),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE user_access (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_email VARCHAR(255) NOT NULL,
+    access_key VARCHAR(255) NOT NULL,
+    FOREIGN KEY (user_email) REFERENCES user(email),
+    FOREIGN KEY (access_key) REFERENCES access_value(key)
+);
+
+
+CREATE TABLE access_value (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    key VARCHAR(255) UNIQUE NOT NULL
+);
