@@ -6,6 +6,8 @@ CREATE TABLE user (
     surname VARCHAR(255),
     profileImage VARCHAR(255),
     gender ENUM('male', 'female', 'other'),
+    interest VARCHAR(255),
+    organization VARCHAR(255) DEFAULT 'acchemarks',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

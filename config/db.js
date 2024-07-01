@@ -16,13 +16,14 @@
 // module.exports = dbConn
 
 
-const mysql = require('mysql');
+const mysql = require('mysql2');
 
 const pool = mysql.createPool({
     host: 'localhost',
     user: 'root',
-    password: '1531869@@##$$',
-    database: 'acchemarks'
+    password: '',
+    database: 'acchemarks',
+    connectionLimit: 10
 });
 
 module.exports = pool.promise();

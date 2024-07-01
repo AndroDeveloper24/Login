@@ -17,16 +17,52 @@ exports.login = async (req, res) => {
     res.header('Authorization', token).send({ token, access: accessRows[0].value });
 };
 
+// exports.register = async (req, res) => {
+//     const { email, password, name, surname, profileImage, gender } = req.body;
+//     const salt = await bcrypt.genSalt(10);
+//     const hashedPassword = await bcrypt.hash(password, salt);
+
+//     try {
+//         await pool.query('INSERT INTO user (email, password, name, surname, profileImage, gender) VALUES (?, ?, ?, ?, ?, ?)', [email, hashedPassword, name, surname, profileImage, gender]);
+//         res.send('User registered successfully');
+//     } catch (err) {
+//         res.status(400).send(err);
+//     }
+// };
+
+
 exports.register = async (req, res) => {
-    const { email, password, name, surname, profileImage, gender } = req.body;
+    const { email, password, name, surname, profileImage, gender, interest, organization = 'acchemarks', access_keys } = req.body;
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    const connection = await pool.getConnection();
+    await connection.beginTransaction();
+
     try {
-        await pool.query('INSERT INTO user (email, password, name, surname, profileImage, gender) VALUES (?, ?, ?, ?, ?, ?)', [email, hashedPassword, name, surname, profileImage, gender]);
+        // Insert the user into the user table
+        await connection.query(
+            'INSERT INTO user (email, password, name, surname, profileImage, gender, interest, organization) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [email, hashedPassword, name, surname, profileImage, gender, interest, organization]
+        );
+
+        // Insert the access keys into the user_access table
+        if (access_keys && access_keys.length > 0) {
+            for (const access_key of access_keys) {
+                await connection.query(
+                    'INSERT INTO user_access (user_email, access_key) VALUES (?, ?)',
+                    [email, access_key]
+                );
+            }
+        }
+
+        await connection.commit();
         res.send('User registered successfully');
     } catch (err) {
+        await connection.rollback();
         res.status(400).send(err);
+    } finally {
+        connection.release();
     }
 };
 
